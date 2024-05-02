@@ -1,0 +1,73 @@
+---
+title: "Hw4"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+
+```{r}
+
+wine<- read_csv("/Users/sarahjennings/Desktop/Stat436/winemag-data-130k-v2.csv")
+```
+
+province, country, points
+
+```{r}
+wine1<-wine|>
+  mutate(location = case_when (
+    country=="US"~"U.S.",
+    country== "France"~ "France",
+    country == "Italy" ~"Italy",
+    country == "Spain" ~ "Spain",
+    country == "Portugal" ~ "Portugal",
+    TRUE ~ "Other Countries"
+  ))
+```
+```{r}
+wine_avg<-wine1|>
+  group_by(variety, country)|>
+  summarize(avg_points= mean(points, na.rm=TRUE))|>
+  ungroup()
+
+top_wines<- wine_avg|>
+  arrange(desc(avg_points))|>
+  slice(1:10)
+top_wines
+
+```
+
+```{r}
+ggplot(top_wines, aes(x=reorder(variety,-avg_points), y=avg_points, fill= country))+
+  geom_bar(stat="identity")+
+  labs(title= "Top 10 Overall Wine Varieties",
+       x="Variety",
+       y="Average Points",
+       fill ="Country")+
+  coord_cartesian(ylim=c(85,100))+
+  scale_fill_brewer(palette="Reds")+
+  theme(axis.text.x=element_text(angle=45, hjust =1))
+```
+
+
+```{r}
+ggplot(wine1, aes(x = price, y = points)) +
+  geom_point(color = "darkred", alpha = 0.6, size = 2) + 
+  facet_wrap(~location, scales="free_x")+
+  labs(title = "Wine Points vs Price",
+       x = "Price",
+       y = "Points") 
+
+
+```
+
